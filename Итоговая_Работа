@@ -1,0 +1,90 @@
+from datetime import date
+import requests
+from typing import List
+
+
+class cur_data:
+
+    def __init__(self, baseCurrency: str, currency: str, saleRateNB: str, purchaseRateNB: str, **kwargs):
+        self.base = baseCurrency  # UAH
+        self.currency = currency  # Валюта обмена
+        self.sale = saleRateNB  # Курс продажи
+        self.buy = purchaseRateNB  # Курс покупки
+
+
+class PB_cur:
+
+    cur_url = 'https://api.privatbank.ua/p24api/exchange_rates?json&'
+
+
+    @staticmethod
+    def is_success(status_code: int):
+        return 200 <= status_code <= 299  # Код успешный
+
+    @classmethod
+    def get(self, date) -> List[cur_data]:
+        responce = requests.get(self.cur_url, params={'date': date})
+        if not self.is_success(responce.status_code):
+            print('Произошла ошибка')
+            return []
+        curr = responce.json()
+        if len(curr) == 0:
+            print("Вы ввели неверные данные")
+            return[]
+
+        return [cur_data(**x) for x in curr['exchangeRate'] if 'currency' in x]
+
+
+def get_date():  # Функция получения сегодняшней даты
+
+    tdate = date.today()
+    td_string = tdate.strftime('%d.%m.%Y')
+    return td_string
+
+
+a = get_date()
+
+p = PB_cur()
+pp = p.get(a)
+
+menu = '''
+1 - Узнать курс валют на сегодня
+2 - Узнать курс валют на выбранную дату
+0 - Выход
+>
+'''
+
+while True:
+    choice = int(input(menu))
+
+    if choice == 1:
+        a = get_date()
+
+        p = PB_cur()
+        pp = p.get(a)
+
+        search_b = input('Введите валюту: ')
+        search_c = search_b.upper()
+
+        for i in pp:
+            if search_c == i.currency:
+                print(f'Курс обмена: {i.base} -> {i.currency}\nПокупка: {i.buy} Продажа: {i.sale}')
+
+    elif choice == 2:
+        a = input('Введите дату в формате dd.mm.yyyy: ')
+
+        p = PB_cur()
+        pp = p.get(a)
+
+        search_b = input('Введите валюту: ')
+        search_c = search_b.upper()
+
+        for i in pp:
+            if search_c == i.currency:
+                print(f'Курс обмена: {i.base} -> {i.currency}\nПокупка: {i.buy} Продажа: {i.sale}')
+
+
+    elif choice == 0:
+        print('Выход')
+        break
+        
