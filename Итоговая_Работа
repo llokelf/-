@@ -7,9 +7,9 @@ class cur_data:
 
     def __init__(self, baseCurrency: str, currency: str, saleRateNB: str, purchaseRateNB: str, **kwargs):
         self.base = baseCurrency  # UAH
-        self.currency = currency  # Валюта обмена
-        self.sale = saleRateNB  # Курс продажи
-        self.buy = purchaseRateNB  # Курс покупки
+        self.currency = currency  # Exchange currency
+        self.sale = saleRateNB  # Sale Rate
+        self.buy = purchaseRateNB  # Purchase Rate
 
 
 class PB_cur:
@@ -19,23 +19,23 @@ class PB_cur:
 
     @staticmethod
     def is_success(status_code: int):
-        return 200 <= status_code <= 299  # Код успешный
+        return 200 <= status_code <= 299  # Successful Code
 
     @classmethod
     def get(self, date) -> List[cur_data]:
         responce = requests.get(self.cur_url, params={'date': date})
         if not self.is_success(responce.status_code):
-            print('Произошла ошибка')
+            print('Error')
             return []
         curr = responce.json()
         if len(curr) == 0:
-            print("Вы ввели неверные данные")
+            print("Incorrect data")
             return[]
 
         return [cur_data(**x) for x in curr['exchangeRate'] if 'currency' in x]
 
 
-def get_date():  # Функция получения сегодняшней даты
+def get_date():  # Get today`s date function
 
     tdate = date.today()
     td_string = tdate.strftime('%d.%m.%Y')
@@ -48,9 +48,9 @@ p = PB_cur()
 pp = p.get(a)
 
 menu = '''
-1 - Узнать курс валют на сегодня
-2 - Узнать курс валют на выбранную дату
-0 - Выход
+1 - Exchange rate for today
+2 - Exchange rate by date
+0 - Exit
 >
 '''
 
@@ -63,28 +63,28 @@ while True:
         p = PB_cur()
         pp = p.get(a)
 
-        search_b = input('Введите валюту: ')
+        search_b = input('Enter currency: ')
         search_c = search_b.upper()
 
         for i in pp:
             if search_c == i.currency:
-                print(f'Курс обмена: {i.base} -> {i.currency}\nПокупка: {i.buy} Продажа: {i.sale}')
+                print(f'Exchange rate: {i.base} -> {i.currency}\nBuy: {i.buy} Sale: {i.sale}')
 
     elif choice == 2:
-        a = input('Введите дату в формате dd.mm.yyyy: ')
+        a = input('Enter the date in this format: dd.mm.yyyy: ')
 
         p = PB_cur()
         pp = p.get(a)
 
-        search_b = input('Введите валюту: ')
+        search_b = input('Enter currency: ')
         search_c = search_b.upper()
 
         for i in pp:
             if search_c == i.currency:
-                print(f'Курс обмена: {i.base} -> {i.currency}\nПокупка: {i.buy} Продажа: {i.sale}')
+                print(f'Exchange rate: {i.base} -> {i.currency}\nBuy: {i.buy} Sale: {i.sale}')
 
 
     elif choice == 0:
-        print('Выход')
+        print('Exit')
         break
         
